@@ -1,0 +1,237 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+
+    <title>Dot density | Sample | ArcGIS API for JavaScript 4.20</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.20/esri/themes/dark/main.css"
+    />
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.20/"></script>
+
+    <script>
+      require([
+        "esri/WebMap",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/renderers/DotDensityRenderer",
+        "esri/widgets/Legend",
+        "esri/widgets/Bookmarks",
+        "esri/widgets/Expand"
+      ], function (
+        WebMap,
+        MapView,
+        FeatureLayer,
+        DotDensityRenderer,
+        Legend,
+        Bookmarks,
+        Expand
+      ) {
+        const map = new WebMap({
+          portalItem: {
+            id: "56b5bd522c52409c90d902285732e9f1"
+          }
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          center: [-105.000127, 39.738149],
+          zoom: 10,
+          map: map,
+          highlightOptions: {
+            fillOpacity: 0,
+            color: [50, 50, 50]
+          },
+          popup: {
+            dockEnabled: true,
+            dockOptions: {
+              position: "top-right",
+              breakpoint: false
+            }
+          },
+          constraints: {
+            maxScale: 35000
+          }
+        });
+
+        view.when().then(function () {
+          const dotDensityRenderer = new DotDensityRenderer({
+            dotValue: 100,
+            outline: null,
+            referenceScale: 577790, // 1:577,790 view scale
+            legendOptions: {
+              unit: "people"
+            },
+            attributes: [
+              {
+                field: "WHITEHISP",
+                color: "#f23c3f",
+                label: "White (non-Hispanic)"
+              },
+              {
+                field: "HISPANIC",
+                color: "#e8ca0d",
+                label: "Hispanic"
+              },
+              {
+                field: "BLACKHISP",
+                color: "#00b6f1",
+                label: "Black or African American"
+              },
+              {
+                field: "ASIANHISP",
+                color: "#32ef94",
+                label: "Asian"
+              },
+              {
+                field: "AMERIHISP",
+                color: "#ff7fe9",
+                label: "American Indian/Alaskan Native"
+              },
+              {
+                field: "PIHISP",
+                color: "#e2c4a5",
+                label: "Pacific Islander/Hawaiian Native"
+              },
+              {
+                field: "OTHERHISP",
+                color: "#ff6a00",
+                label: "Other race"
+              },
+              {
+                field: "MULTIHISP",
+                color: "#96f7ef",
+                label: "Two or more races"
+              }
+            ]
+          });
+
+          // Add renderer to the layer and define a popup template
+          const url =
+            "https://services.arcgis.com/IamIM3RJ5xHykalK/arcgis/rest/services/Populated_Blocks_shp/FeatureServer/0";
+          const layer = new FeatureLayer({
+            url: url,
+            minScale: 20000000,
+            maxScale: 35000,
+            title: "Current Population Estimates (ACS)",
+            popupTemplate: {
+              title: "{County}, {State}",
+              content: [
+                {
+                  type: "fields",
+                  fieldInfos: [
+                    {
+                      fieldName: "WHITEHISP",
+                      label: "White (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "HISPANIC",
+                      label: "Hispanic",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "BLACKHISP",
+                      label: "Black (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "ASIANHISP",
+                      label: "Asian (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "AMERIHISP",
+                      label: "American Indian (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "PIHISP",
+                      label: "Pacific Islander (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "OTHERHISP",
+                      label: "Other Race (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    },
+                    {
+                      fieldName: "MULTIHISP",
+                      label: "Multi Race (non-Hispanic)",
+                      format: {
+                        digitSeparator: true,
+                        places: 0
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            renderer: dotDensityRenderer
+          });
+
+          map.add(layer);
+
+          view.ui.add(
+            [
+              new Expand({
+                view: view,
+                content: new Legend({ view: view }),
+                group: "top-left",
+                expanded: true
+              }),
+              new Expand({
+                view: view,
+                content: new Bookmarks({ view: view }),
+                group: "top-left"
+              })
+            ],
+            "top-left"
+          );
+        });
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
